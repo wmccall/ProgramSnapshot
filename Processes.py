@@ -12,6 +12,8 @@ temp_process_file_name = "tempTasks.csv"
 perm_processes_folder_location = ".\\configs"
 perm_process_file_name = "savedTasks.csv"
 
+extension = ".csv"
+
 
 def get_raw_processes():
     cmd = 'WMIC PROCESS get Caption,Commandline'
@@ -20,23 +22,31 @@ def get_raw_processes():
 
 
 def clean_names_and_remove_services(processes):
+    # todo: clean this mess please
     refined_processes = []
     for process in processes:
-        name_and_location_sub_list = re.compile(r'\s\s+').split(process.decode('utf8'))
 
+        name_and_location_sub_list = re.compile(r'\s\s+').split(process.decode('utf8'))
         subelements = 0
         name_and_location_sub_list_cleaned = []
         element_is_legit = True
+
         for element in name_and_location_sub_list:
             subelements += 1
+
             if subelements == 1:
                 element.replace("b'", "")
+
             elif subelements == 2:
+
                 while element.find('\\\\') != -1:
                     element = element.replace('\\\\', '\\')
+
                 element = delete_parameters(element)
+
                 while element.find('"') != -1:
                     element = element.replace('"', '')
+
                 if len(element) < 1 or element.lower().find("c:\windows\system32") > 0:
                     element_is_legit = False
 
@@ -56,13 +66,9 @@ def delete_parameters(element):
 
 
 def is_duplicate_process(found_processes, new_process):
-    # print("NewProcess:" + new_process[0])
     for process in sorted(found_processes, key=lambda x: (x[0].lower(), x[1].lower())):
-        # print(process[0])
         if process[0] == new_process[0]:
-            # print("   \\ is duplicate")
             return True
-    # print("   \\ is unique")
     return False
 
 
