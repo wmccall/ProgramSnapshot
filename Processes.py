@@ -77,22 +77,17 @@ def get_processes():
     return processes
 
 
-def save_processes(filename):
-    CSV_IO.write_processes(get_processes(), filename)
-
-
-def save_processes_permanently():
-    os.makedirs(os.path.dirname(perm_processes_folder_location + "\\" + perm_process_file_name), exist_ok=True)
-    save_processes(perm_processes_folder_location + "\\" + perm_process_file_name)
-
-
-def save_processes_temporarily():
-    os.makedirs(os.path.dirname(temp_processes_folder_location + "\\" + temp_process_file_name), exist_ok=True)
-    save_processes(temp_processes_folder_location + "\\" + temp_process_file_name)
+def save_processes(processes_folder_location, process_file_name):
+    path_name = processes_folder_location + "\\" + process_file_name
+    os.makedirs(os.path.dirname(path=path_name), exist_ok=True)
+    CSV_IO.write_processes(processes=get_processes(), filename=path_name)
 
 
 def boot_processes():
-    save_processes_temporarily()
+    save_processes(
+        processes_folder_location=temp_processes_folder_location,
+        process_file_name=temp_process_file_name
+    )
     temp_processes = CSV_IO.read_processes(temp_processes_folder_location + "\\" + temp_process_file_name)
     saved_processes = CSV_IO.read_processes(perm_processes_folder_location + "\\" + perm_process_file_name)
 
