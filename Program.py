@@ -13,7 +13,10 @@ def main():
             Processes.boot_processes()
             choice = ""
         if choice is "2":
-            Processes.save_processes_permanently()
+            Processes.save_processes(
+                processes_folder_location=Processes.perm_processes_folder_location,
+                process_file_name=Processes.perm_process_file_name
+            )
             choice = ""
 
     print("Quitting")
