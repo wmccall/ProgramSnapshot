@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import re
 import os
@@ -78,7 +79,7 @@ def save_processes(filename):
 
 
 def save_processes_permanently(save_name="savedTasks"):
-    os.makedirs(os.path.dirname(perm_processes_folder_location + "\\" + save_name + extension), exist_ok=True)
+    os.makedirs(os.path.dirname(perm_processes_folder_location), exist_ok=True)
     save_processes(perm_processes_folder_location + "\\" + save_name + extension)
 
 
@@ -101,3 +102,7 @@ def boot_processes(save_name="savedTasks"):
 def run_process(process):
     subprocess.Popen(process[1], shell=True,
                      stdin=None, stdout=None, stderr=None)
+
+
+def delete_processes(delete_name="savedTasks"):
+    os.remove(perm_processes_folder_location + "\\" + delete_name + extension)
