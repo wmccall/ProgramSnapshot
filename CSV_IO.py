@@ -1,6 +1,8 @@
 import csv
 import os
 
+from Program import perm_processes_folder_location
+
 config_count = 0
 
 
@@ -37,11 +39,15 @@ def get_all_configurations(folder_location):
 
     config_count = 0
     configurations = []
-    for itemName in os.listdir(folder_location):
-        path_to_item = os.path.join(folder_location, itemName)
-        if os.path.isfile(path_to_item) and itemName[-4:] == ".csv":
-            configurations.append(itemName[:-4])
-            config_count += 1
+    try:
+        for itemName in os.listdir(folder_location):
+            path_to_item = os.path.join(folder_location, itemName)
+            if os.path.isfile(path_to_item) and itemName[-4:] == ".csv":
+                configurations.append(itemName[:-4])
+                config_count += 1
+    except FileNotFoundError:
+        print("Creating config folder")
+        os.mkdir(perm_processes_folder_location)
     return configurations
 
 

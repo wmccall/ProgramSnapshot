@@ -53,8 +53,11 @@ def setup_display():
                        value=len(radio_buttons))
         radio_button.grid(row=len(radio_buttons), column=1)
         radio_buttons.append(radio_button)
-    get_first_radio_button().invoke()
-    reset_positions()
+    if len(radio_buttons) > 0:
+        get_first_radio_button().invoke()
+        reset_positions()
+    else:
+        update_display_name("savedTasks")
     root.mainloop()
 
 
