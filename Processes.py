@@ -1,16 +1,9 @@
+import shutil
 import subprocess
 import re
-
 import os
-
 import CSV_IO
-
-
-temp_processes_folder_location = ".\\tempconfig"
-temp_process_file_name = "tempTasks.csv"
-
-perm_processes_folder_location = ".\\configs"
-perm_process_file_name = "savedTasks.csv"
+from Program import perm_processes_folder_location, extension, temp_process_file_location
 
 
 def get_raw_processes():
@@ -20,23 +13,31 @@ def get_raw_processes():
 
 
 def clean_names_and_remove_services(processes):
+    # todo: clean this mess please
     refined_processes = []
     for process in processes:
-        name_and_location_sub_list = re.compile(r'\s\s+').split(process.decode('utf8'))
 
+        name_and_location_sub_list = re.compile(r'\s\s+').split(process.decode('utf8'))
         subelements = 0
         name_and_location_sub_list_cleaned = []
         element_is_legit = True
+
         for element in name_and_location_sub_list:
             subelements += 1
+
             if subelements == 1:
                 element.replace("b'", "")
+
             elif subelements == 2:
+
                 while element.find('\\\\') != -1:
                     element = element.replace('\\\\', '\\')
+
                 element = delete_parameters(element)
+
                 while element.find('"') != -1:
                     element = element.replace('"', '')
+
                 if len(element) < 1 or element.lower().find("c:\windows\system32") > 0:
                     element_is_legit = False
 
@@ -56,13 +57,9 @@ def delete_parameters(element):
 
 
 def is_duplicate_process(found_processes, new_process):
-    # print("NewProcess:" + new_process[0])
     for process in sorted(found_processes, key=lambda x: (x[0].lower(), x[1].lower())):
-        # print(process[0])
         if process[0] == new_process[0]:
-            # print("   \\ is duplicate")
             return True
-    # print("   \\ is unique")
     return False
 
 
@@ -78,23 +75,23 @@ def get_processes():
 
 
 def save_processes(filename):
-    CSV_IO.write_processes(get_processes(), filename)
+    CSV_IO.write_processes_to_file(get_processes(), filename)
 
 
-def save_processes_permanently():
-    os.makedirs(os.path.dirname(perm_processes_folder_location + "\\" + perm_process_file_name), exist_ok=True)
-    save_processes(perm_processes_folder_location + "\\" + perm_process_file_name)
+def save_processes_permanently(save_name="savedTasks"):
+    os.makedirs(os.path.dirname(perm_processes_folder_location), exist_ok=True)
+    save_processes(perm_processes_folder_location + "\\" + save_name + extension)
 
 
 def save_processes_temporarily():
-    os.makedirs(os.path.dirname(temp_processes_folder_location + "\\" + temp_process_file_name), exist_ok=True)
-    save_processes(temp_processes_folder_location + "\\" + temp_process_file_name)
+    os.makedirs(os.path.dirname(temp_process_file_location), exist_ok=True)
+    save_processes(temp_process_file_location)
 
 
-def boot_processes():
+def boot_processes(save_name="savedTasks"):
     save_processes_temporarily()
-    temp_processes = CSV_IO.read_processes(temp_processes_folder_location + "\\" + temp_process_file_name)
-    saved_processes = CSV_IO.read_processes(perm_processes_folder_location + "\\" + perm_process_file_name)
+    temp_processes = CSV_IO.read_processes_in_file(temp_process_file_location)
+    saved_processes = CSV_IO.read_processes_in_file(perm_processes_folder_location + "\\" + save_name + extension)
 
     for process in sorted(saved_processes, key=lambda x: (x[0].lower(), x[1].lower())):
         if not is_duplicate_process(temp_processes, process):
@@ -104,4 +101,8 @@ def boot_processes():
 
 def run_process(process):
     subprocess.Popen(process[1], shell=True,
-                     stdin=None, stdout=None, stderr=None, close_fds=True)
+                     stdin=None, stdout=None, stderr=None)
+
+
+def delete_processes(delete_name="savedTasks"):
+    os.remove(perm_processes_folder_location + "\\" + delete_name + extension)
